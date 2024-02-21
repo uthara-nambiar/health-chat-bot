@@ -10,7 +10,7 @@ const Home = () => {
       {
         isSignedIn ? (
           <>
-            <UserProfile only="account" />
+            
             <SignOutButton signOutCallback={() => navigate('/sign-in')} />
           </>
         ) : (
