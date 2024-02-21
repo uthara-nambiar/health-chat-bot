@@ -11,7 +11,7 @@ const Onboarding = () => {
     let [emailValid, setEmailValid] = useState(true)
     let [usernameValid, setUsernameValid] = useState(true)
     let [diagnosedValid, setDiagnosedValid] = useState(true)
-    const {setUsername, setDiagned,setEmail} = useContext(Info)
+    const {setUsername, setDiagnosed,setEmail} = useContext(Info)
     const navigate = useNavigate()
     
     const isEmailValid = () => {
@@ -49,7 +49,7 @@ const Onboarding = () => {
             console.log(user)
             setUsername(username.current)
             setEmail(email.current)
-            setDiagned(diagnosed.current)
+            setDiagnosed(diagnosed.current)
 
             navigate('/home')
 

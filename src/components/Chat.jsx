@@ -17,7 +17,7 @@ import { useUser, SignOutButton, UserProfile } from "@clerk/clerk-react";
 import SendIcon from "@material-ui/icons/Send";
 import { useState } from "react";
 import { Info } from "../context/Context";
-
+import Modal from '@mui/material/Modal';
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
@@ -33,53 +33,37 @@ const useStyles = makeStyles({
     borderRight: "1px solid #e0e0e0",
   },
   messageArea: {
-    height: "70vh",
+    height: "50vh",
     overflowY: "auto",
   },
 });
+
+// useEffect(() => {
+//   //login api call with userId
+// },[])
 const Chat = () => {
+  const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const {user,isSignedIn} = useUser()
-  const {userName, Email, Diagnosed} = useContext(Info)
+  const {userName, Email, Diagnosed, setUsername, setDiagnosed, setEmail} = useContext(Info)
   console.log("user", userName, Email, Diagnosed)
   console.log(user, isSignedIn)
   var temp = [];
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  let arr = [];
   let key = 0;
-  // const messages = [
-  //   {
-  //     key: "1",
-  //     bot: "hi",
-  //     user: "hi bot",
-  //   },
-  //   {
-  //     key: "2",
-  //     bot: "hi 1",
-  //     user: "hi bot 1",
-  //   },
-  //   {
-  //     key: "3",
-  //     bot: "hi 2",
-  //     user: "hi bot 2",
-  //   },
-  //   {
-  //     key: '4',
-  //     bot:"hi 3",
-  //     user:'hi bot 3'
-  //   }
-  // ];
+  
+  if(!userName || !Email || !Diagnosed){
+    setDiagnosed('Cancer')
+    setEmail(user.emailAddresses[0].emailAddress)
+    setUsername(user.username)
+  }
+
   const handleChange = (e) => {
     setMessage(e.target.value);
   };
   const handleClick = () => {
-    // messages.push({
-    //     key: "4",
-    //     bot: "",
-    //     user: message
-    // })
     let obj = {};
     obj.key = key;
     obj.bot = "";
@@ -100,23 +84,24 @@ const Chat = () => {
     }, 2000);
     //after response take last obj from the array and obj.bot = response.message
   };
-  // useEffect(() => {
-  // }, [key])
+
   return (
     <div>
-      <div style={{display:'flex', flexDirection:'row', height:'60px', margin:'5px'}}>
+      <div style={{display:'flex', flexDirection:'row', height:'60px', margin:'5px', justifyContent:'space-between'}}>
         {
           isSignedIn ? (
             <>
-              <SignOutButton signOutCallback={() => navigate('/sign-in')} style={{height:'30px'}} />
+              <SignOutButton signOutCallback={() => navigate('/sign-in')} className="button-42" />
             </>
           ) : (
             <div>Page not found</div>
           )
         }
         {
-          user.hasImage?(<img style={{width:'50px', height:'50px', borderRadius:'50%'}} src={user.imageUrl} />):(<img />)
+          <img src={user.hasImage?user.imageUrl:''} style={{width:'50px', height:'50px', borderRadius:'50%', cursor:'pointer'}} onClick={() => setOpen(true)} />
+          
         }
+        
 
       </div>
       <Grid container>
@@ -146,6 +131,9 @@ const Chat = () => {
             ))}
           </List>
           <Divider />
+          {
+            open && <BasicModal open={open} setOpen={setOpen} user={user} userName={userName} Email={Email} Diagnosed={Diagnosed} fullName={user.fullName} />
+          }
           <Grid container style={{ padding: "20px" }}>
             <Grid item xs={11}>
               <TextField
@@ -167,4 +155,43 @@ const Chat = () => {
     </div>
   );
 };
+
+// const style = {
+//   top: '50%',
+//   left: '50%',
+//   transform: 'translate(-50%, -50%)',
+//   width: 400,
+//   bgcolor: 'background.paper',
+//   border: '2px solid #000',
+//   boxShadow: 24,
+//   p: 4,
+// };
+function BasicModal({open, setOpen,fullName,user, userName, Email, Diagnosed}) {
+  
+  const handleClose = () => setOpen(false);
+
+  return (
+    <div>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box style={{background:'#097975',marginTop:'6rem', width:'70%', marginLeft:'13%', height:'60%', border:'none', borderRadius:'30px' }}>
+          <div style={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+            <img src={user.hasImage?user.imageUrl:''} style={{width:'100px', height:'100px', borderRadius:'50%'}} />
+            <span style={{fontSize:'20px', fontWeight:'bold'}}>{fullName}</span>
+          </div>
+          <div style={{display:'flex', flexDirection:'column', gap:'6px', marginTop:'10px'}}>
+            <span style={{padding:'5px', marginLeft:'20px', fontFamily:'monospace'}}>Email: {Email}</span>
+            <span style={{padding:'5px', marginLeft:'20px', fontFamily:'monospace'}}>Username: {userName}</span>
+            <span style={{padding:'5px', marginLeft:'20px', fontFamily:'monospace'}}>Diagnosed with: {Diagnosed}</span>
+          </div>
+        </Box>
+
+      </Modal>
+    </div>
+  );
+}
 export default Chat;
