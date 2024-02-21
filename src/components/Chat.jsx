@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
@@ -10,10 +10,13 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import { useNavigate } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
 import Fab from "@material-ui/core/Fab";
+import { useUser, SignOutButton, UserProfile } from "@clerk/clerk-react";
 import SendIcon from "@material-ui/icons/Send";
 import { useState } from "react";
+import { Info } from "../context/Context";
 
 const useStyles = makeStyles({
   table: {
@@ -35,6 +38,11 @@ const useStyles = makeStyles({
   },
 });
 const Chat = () => {
+  const navigate = useNavigate()
+  const {user,isSignedIn} = useUser()
+  const {userName, Email, Diagnosed} = useContext(Info)
+  console.log("user", userName, Email, Diagnosed)
+  console.log(user, isSignedIn)
   var temp = [];
   const classes = useStyles();
   const [message, setMessage] = useState("");
@@ -96,6 +104,21 @@ const Chat = () => {
   // }, [key])
   return (
     <div>
+      <div style={{display:'flex', flexDirection:'row', height:'60px', margin:'5px'}}>
+        {
+          isSignedIn ? (
+            <>
+              <SignOutButton signOutCallback={() => navigate('/sign-in')} style={{height:'30px'}} />
+            </>
+          ) : (
+            <div>Page not found</div>
+          )
+        }
+        {
+          user.hasImage?(<img style={{width:'50px', height:'50px', borderRadius:'50%'}} src={user.imageUrl} />):(<img />)
+        }
+
+      </div>
       <Grid container>
         <Grid item xs={12}>
           <Typography variant="h5" className="header-message">

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate()
   const { isSignedIn, user, isLoaded } = useUser();
+  console.log("user", user)
 
   return (
     <div>

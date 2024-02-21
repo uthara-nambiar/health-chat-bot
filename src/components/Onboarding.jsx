@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useUser, SignOutButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { TextField } from '@mui/material';
+import { Info } from '../context/Context';
 const Onboarding = () => {
     const { isSignedIn, user, isLoaded } = useUser();
     let email = useRef(null)
@@ -10,6 +11,7 @@ const Onboarding = () => {
     let [emailValid, setEmailValid] = useState(true)
     let [usernameValid, setUsernameValid] = useState(true)
     let [diagnosedValid, setDiagnosedValid] = useState(true)
+    const {setUsername, setDiagned,setEmail} = useContext(Info)
     const navigate = useNavigate()
     
     const isEmailValid = () => {
@@ -45,6 +47,10 @@ const Onboarding = () => {
             }
             console.log(info)
             console.log(user)
+            setUsername(username.current)
+            setEmail(email.current)
+            setDiagned(diagnosed.current)
+
             navigate('/home')
 
         }
