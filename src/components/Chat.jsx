@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
@@ -34,41 +34,66 @@ const useStyles = makeStyles({
     overflowY: "auto",
   },
 });
-
 const Chat = () => {
+  var temp = [];
   const classes = useStyles();
-  const [message, setMessage] = useState('');
-
-  const messages = [
-    {
-      key: "1",
-      bot: "hi",
-      user: "hi bot",
-    },
-    {
-      key: "2",
-      bot: "hi 1",
-      user: "hi bot 1",
-    },
-    {
-      key: "3",
-      bot: "hi 2",
-      user: "hi bot 2",
-    },
-  ];
-
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  let arr = [];
+  let key = 0;
+  // const messages = [
+  //   {
+  //     key: "1",
+  //     bot: "hi",
+  //     user: "hi bot",
+  //   },
+  //   {
+  //     key: "2",
+  //     bot: "hi 1",
+  //     user: "hi bot 1",
+  //   },
+  //   {
+  //     key: "3",
+  //     bot: "hi 2",
+  //     user: "hi bot 2",
+  //   },
+  //   {
+  //     key: '4',
+  //     bot:"hi 3",
+  //     user:'hi bot 3'
+  //   }
+  // ];
   const handleChange = (e) => {
-    setMessage(e.target.value)
-  }
-
-  const handleClick = () =>{
-    messages.push({
-        key: "4",
-        bot: "",
-        user: message
-    })
-  }
-
+    setMessage(e.target.value);
+  };
+  const handleClick = () => {
+    // messages.push({
+    //     key: "4",
+    //     bot: "",
+    //     user: message
+    // })
+    let obj = {};
+    obj.key = key;
+    obj.bot = "";
+    obj.user = message;
+    temp = [...messages, obj];
+    console.log("temp", temp);
+    key++;
+    console.log("key", key);
+    setMessages([...messages, obj]);
+    setMessage("");
+    setTimeout(() => {
+      let obj = temp[temp.length - 1];
+      console.log("obj", temp);
+      temp.splice(temp.length - 1, 1);
+      console.log("new msg", temp);
+      obj.bot = "response from bot";
+      setMessages([...temp, obj]);
+    }, 2000);
+    //after response take last obj from the array and obj.bot = response.message
+  };
+  // useEffect(() => {
+  // }, [key])
   return (
     <div>
       <Grid container>
@@ -84,26 +109,15 @@ const Chat = () => {
             {messages.map(({ key, bot, user }, i) => (
               <ListItem key={key}>
                 <Grid container>
-                  <Grid>
-                    <Grid item xs={12}>
-                      <ListItemText align="left" primary={bot}></ListItemText>
+                  <Grid item xs={12} style={{display: "flex",justifyContent: "flex-end"}}>
+                    {/* <ListItemText align="right" primary={user}></ListItemText> */}
+                    <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "#3a97cf", padding: "5px 15px 5px 15px", color: "white"}}>{user}</Typography>
+                  </Grid>
+
+                  <Grid item xs={12} style={{display: "flex",justifyContent: "flex-start"}}>
+                      {/* <ListItemText align="left" primary={bot}></ListItemText> */}
+                      <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "white", padding: "5px 15px 5px 15px"}}>{bot}</Typography>
                     </Grid>
-                    <Grid item xs={12}>
-                      <ListItemText
-                        align="left"
-                        secondary="09:30"
-                      ></ListItemText>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <ListItemText align="right" primary={user}></ListItemText>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <ListItemText
-                      align="right"
-                      secondary="09:30"
-                    ></ListItemText>
-                  </Grid>
                 </Grid>
               </ListItem>
             ))}
@@ -115,12 +129,13 @@ const Chat = () => {
                 id="outlined-basic-email"
                 label="Type Something"
                 fullWidth
-                onChange={(e)=> handleChange(e)}
+                value={message}
+                onChange={(e) => handleChange(e)}
               />
             </Grid>
             <Grid item xs={1} align="right">
               <Fab color="primary" aria-label="add">
-                <SendIcon onClick={handleClick}/>
+                <SendIcon onClick={handleClick} />
               </Fab>
             </Grid>
           </Grid>
@@ -129,5 +144,4 @@ const Chat = () => {
     </div>
   );
 };
-
 export default Chat;
