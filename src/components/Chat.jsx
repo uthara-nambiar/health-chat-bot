@@ -16,11 +16,16 @@ import Fab from "@material-ui/core/Fab";
 import { useUser, SignOutButton, UserProfile } from "@clerk/clerk-react";
 import SendIcon from "@material-ui/icons/Send";
 import { useState } from "react";
+import Select from 'react-select'
+
 import Dropdown from 'react-dropdown';
 import { Info } from "../context/Context";
 import 'react-dropdown/style.css';
-import Modal from '@mui/material/Modal';
-// import SplitButton from "./Dropdown";
+import Modal from "@mui/material/Modal";
+import axios from "axios";
+import "../assets/Theme/styles.css";
+import profile from "../assets/Icons/profile.png";
+import bot from "../assets/Icons/bot.png";
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
@@ -58,97 +63,211 @@ const Chat = () => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [loading, setIsLoading] = useState(false);
+  const [showPrev, setShowPrev] = useState(false);
   let key = 0;
-  
-  if(!userName || !Email || !Diagnosed){
-    setDiagnosed('Cancer')
-    setEmail(user.emailAddresses[0].emailAddress)
-    setUsername(user.username)
+
+  if (!userName || !Email || !Diagnosed) {
+    setDiagnosed("Cancer");
+    setEmail(user.emailAddresses[0].emailAddress);
+    setUsername(user.username);
   }
 
   const handleChange = (e) => {
     setMessage(e.target.value);
   };
-  const handleClick = () => {
-    let obj = {};
-    obj.question = message
-    obj.answer = '......'
 
-    // obj.key = key;
-    // obj.bot = "";
-    // obj.user = message;
-    // temp = [...messages, obj];
-    console.log("temp", temp);
-    key++;
-    console.log("key", key);
-    setMessages([...messages,obj]);
-    //api call se response aaeyega then setMessages(response.data)
-
-    // setMessage("");
-    // setTimeout(() => {
-    //   let obj = temp[temp.length - 1];
-    //   console.log("obj", temp);
-    //   temp.splice(temp.length - 1, 1);
-    //   console.log("new msg", temp);
-    //   obj.bot = "response from bot";
-    //   setMessages([...temp, obj]);
-    // }, 2000);
+  const handleClick = async () => {
     //after response take last obj from the array and obj.bot = response.message
+    [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
+    let obj = {};
+    obj.question = message;
+    obj.answer1 = "......";
+    console.log("temp", temp);
+    setMessages([...messages, obj]);
+    let obj1 = {
+      prompt: "Your are medical healthcare assistant." + message,
+    };
+    setIsLoading(true);
+    setMessage("");
+
+    await axios
+      .post("http://127.0.0.1:5000/converse", obj1, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        setIsLoading(false);
+        setShowPrev(true);
+        console.log(res.data);
+        let ans = res.data[res.data.length-1].answer
+        let arr = [...messages]
+        arr[arr.length-1].answer = ans
+        setMessage(arr)
+
+        setMessages(res.data);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const keyPress = (e) => {
+    const keyCode = e.which || e.keyCode;
+
+    if (keyCode === 13) {
+      handleClick();
+      return;
+    }
   };
 
   return (
     <div>
-      <div style={{display:'flex', flexDirection:'row', height:'60px', margin:'5px', justifyContent:'space-between'}}>
-        {
-          isSignedIn ? (
-            <>
-              <SignOutButton signOutCallback={() => navigate('/sign-in')} className="button-42" />
-            </>
-          ) : (
-            <div>Page not found</div>
-          )
-        }
-        {
-          <img src={user.hasImage?user.imageUrl:''} style={{width:'50px', height:'50px', borderRadius:'50%', cursor:'pointer'}} onClick={() => setOpen(true)} />
-          
-        }
-        
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          height: "60px",
+          margin: "5px",
+          justifyContent: "space-between",
+        }}
+      >
+        {isSignedIn ? (
+          <>
+            <SignOutButton
+              signOutCallback={() => navigate("/sign-in")}
+              className="button-42"
+            />
+          </>
+        ) : (
+          <div>Page not found</div>
+        )}
 
+        {
+          <img
+            src={user.hasImage ? user.imageUrl : profile}
+            style={{
+              width: "50px",
+              height: "50px",
+              borderRadius: "50%",
+              cursor: "pointer",
+            }}
+            onClick={() => setOpen(true)}
+          />
+        }
       </div>
-      <Grid container>
+      {/* <Grid container>
         <Grid item xs={12}>
           <Typography variant="h5" className="header-message">
             Chat
           </Typography>
         </Grid>
-      </Grid>
+      </Grid> */}
       <Grid container component={Paper} className={classes.chatSection}>
         <Grid item xs={12}>
           <List className={classes.messageArea}>
             {messages.map((msg) => (
               <ListItem key={key}>
                 <Grid container>
-                  <Grid item xs={12} style={{display: "flex",justifyContent: "flex-end"}}>
+                  <Grid
+                    item
+                    xs={12}
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     {/* <ListItemText align="right" primary={user}></ListItemText> */}
-                    <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "#3a97cf", padding: "5px 15px 5px 15px", color: "white"}}>{msg.question}</Typography>
+                    <Typography
+                      variant="solid"
+                      color="white"
+                      paragraph
+                      className="user-message"
+                    >
+                      {msg?.question}
+                    </Typography>
+                    <img
+                      src={user.hasImage ? user.imageUrl : profile}
+                      style={{
+                        width: "25px",
+                        height: "25px",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        marginLeft: "4px",
+                      }}
+                    />
                   </Grid>
 
-                  <Grid item xs={12} style={{display: "flex",justifyContent: "flex-start"}}>
-                      {/* <ListItemText align="left" primary={bot}></ListItemText> */}
-                      <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "white", padding: "5px 15px 5px 15px"}}>{msg.answer}</Typography>
-                    </Grid>
+                  {msg?.answer && (<Grid
+                    item
+                    xs={12}
+                    style={{ display: "flex", justifyContent: "flex-start" }}
+                  >
+                    {/* <ListItemText align="left" primary={bot}></ListItemText> */}
+                    <img
+                      src={bot}
+                      style={{
+                        width: "25px",
+                        height: "25px",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        marginLeft: "4px",
+                        marginRight: "4px"
+                      }}
+                    />
+                      <Typography
+                        variant="solid"
+                        color="white"
+                        paragraph
+                        className="bot-message"
+                      >
+                        {msg?.answer}
+                        
+                      </Typography>
+                  </Grid>)}
                 </Grid>
               </ListItem>
             ))}
+            {loading && (
+              <>
+                <Grid
+                    item
+                    xs={12}
+                    style={{ display: "flex", justifyContent: "flex-start" }}
+                  >
+                    {/* <ListItemText align="left" primary={bot}></ListItemText> */}
+                    <img
+                      src={bot}
+                      style={{
+                        width: "25px",
+                        height: "25px",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        marginLeft: "15px",
+                      }}
+                    />
+                    <div className="dot-pulse" />
+                  </Grid>
+              </>
+            )}
           </List>
           <Divider />
-          {
-            open && <BasicModal open={open} setOpen={setOpen} user={user} userName={userName} Email={Email} Diagnosed={Diagnosed} fullName={user.fullName} />
-          }
+          {open && (
+            <BasicModal
+              open={open}
+              setOpen={setOpen}
+              user={user}
+              userName={userName}
+              Email={Email}
+              Diagnosed={Diagnosed}
+              fullName={user.fullName}
+            />
+          )}
+
           <Grid container style={{ padding: "20px" }}>
             <Grid item xs={11} style={{display:'flex', justifyContent:'space-between'}}>
               {/* <SplitButton /> */}
-              <Dropdown options={options} value={0} placeholder="Select an option" />;
+              <Select menuPlacement="top" options={options} />
+              
 
               <TextField
                 id="outlined-basic-email"
@@ -156,6 +275,8 @@ const Chat = () => {
                 style={{width:'60%', }}
                 value={message}
                 onChange={(e) => handleChange(e)}
+                onKeyDown={keyPress}
+                disabled={loading}
               />
 
             </Grid>
@@ -181,8 +302,15 @@ const Chat = () => {
 //   boxShadow: 24,
 //   p: 4,
 // };
-function BasicModal({open, setOpen,fullName,user, userName, Email, Diagnosed}) {
-  
+function BasicModal({
+  open,
+  setOpen,
+  fullName,
+  user,
+  userName,
+  Email,
+  Diagnosed,
+}) {
   const handleClose = () => setOpen(false);
 
   return (
@@ -193,18 +321,76 @@ function BasicModal({open, setOpen,fullName,user, userName, Email, Diagnosed}) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box style={{background:'#097975',marginTop:'6rem', width:'70%', marginLeft:'13%', height:'60%', border:'none', borderRadius:'30px' }}>
-          <div style={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
-            <img src={user.hasImage?user.imageUrl:''} style={{width:'100px', height:'100px', borderRadius:'50%'}} />
-            <span style={{fontSize:'20px', fontWeight:'bold'}}>{fullName}</span>
+        <Box
+          style={{
+            background: "#097975",
+            marginTop: "6rem",
+            width: "70%",
+            marginLeft: "13%",
+            height: "60%",
+            border: "none",
+            borderRadius: "30px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <img
+              src={user.hasImage ? user.imageUrl : profile}
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                marginTop: "30px",
+                marginBottom: "20px",
+              }}
+            />
+            <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+              {fullName}
+            </span>
           </div>
-          <div style={{display:'flex', flexDirection:'column', gap:'6px', marginTop:'10px'}}>
-            <span style={{padding:'5px', marginLeft:'20px', fontFamily:'monospace'}}>Email: {Email}</span>
-            <span style={{padding:'5px', marginLeft:'20px', fontFamily:'monospace'}}>Username: {userName}</span>
-            <span style={{padding:'5px', marginLeft:'20px', fontFamily:'monospace'}}>Diagnosed with: {Diagnosed}</span>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
+              marginTop: "10px",
+            }}
+          >
+            <span
+              style={{
+                padding: "5px",
+                marginLeft: "20px",
+                fontFamily: "monospace",
+              }}
+            >
+              Email: {Email}
+            </span>
+            <span
+              style={{
+                padding: "5px",
+                marginLeft: "20px",
+                fontFamily: "monospace",
+              }}
+            >
+              Username: {userName}
+            </span>
+            <span
+              style={{
+                padding: "5px",
+                marginLeft: "20px",
+                fontFamily: "monospace",
+              }}
+            >
+              Diagnosed with: {Diagnosed}
+            </span>
           </div>
         </Box>
-
       </Modal>
     </div>
   );
