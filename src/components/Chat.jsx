@@ -16,8 +16,11 @@ import Fab from "@material-ui/core/Fab";
 import { useUser, SignOutButton, UserProfile } from "@clerk/clerk-react";
 import SendIcon from "@material-ui/icons/Send";
 import { useState } from "react";
+import Dropdown from 'react-dropdown';
 import { Info } from "../context/Context";
+import 'react-dropdown/style.css';
 import Modal from '@mui/material/Modal';
+// import SplitButton from "./Dropdown";
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
@@ -42,6 +45,9 @@ const useStyles = makeStyles({
 //   //login api call with userId
 // },[])
 const Chat = () => {
+  const options = [
+    'one', 'two', 'three'
+  ];
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const {user,isSignedIn} = useUser()
@@ -65,23 +71,28 @@ const Chat = () => {
   };
   const handleClick = () => {
     let obj = {};
-    obj.key = key;
-    obj.bot = "";
-    obj.user = message;
-    temp = [...messages, obj];
+    obj.question = message
+    obj.answer = '......'
+
+    // obj.key = key;
+    // obj.bot = "";
+    // obj.user = message;
+    // temp = [...messages, obj];
     console.log("temp", temp);
     key++;
     console.log("key", key);
-    setMessages([...messages, obj]);
-    setMessage("");
-    setTimeout(() => {
-      let obj = temp[temp.length - 1];
-      console.log("obj", temp);
-      temp.splice(temp.length - 1, 1);
-      console.log("new msg", temp);
-      obj.bot = "response from bot";
-      setMessages([...temp, obj]);
-    }, 2000);
+    setMessages([...messages,obj]);
+    //api call se response aaeyega then setMessages(response.data)
+
+    // setMessage("");
+    // setTimeout(() => {
+    //   let obj = temp[temp.length - 1];
+    //   console.log("obj", temp);
+    //   temp.splice(temp.length - 1, 1);
+    //   console.log("new msg", temp);
+    //   obj.bot = "response from bot";
+    //   setMessages([...temp, obj]);
+    // }, 2000);
     //after response take last obj from the array and obj.bot = response.message
   };
 
@@ -114,17 +125,17 @@ const Chat = () => {
       <Grid container component={Paper} className={classes.chatSection}>
         <Grid item xs={12}>
           <List className={classes.messageArea}>
-            {messages.map(({ key, bot, user }, i) => (
+            {messages.map((msg) => (
               <ListItem key={key}>
                 <Grid container>
                   <Grid item xs={12} style={{display: "flex",justifyContent: "flex-end"}}>
                     {/* <ListItemText align="right" primary={user}></ListItemText> */}
-                    <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "#3a97cf", padding: "5px 15px 5px 15px", color: "white"}}>{user}</Typography>
+                    <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "#3a97cf", padding: "5px 15px 5px 15px", color: "white"}}>{msg.question}</Typography>
                   </Grid>
 
                   <Grid item xs={12} style={{display: "flex",justifyContent: "flex-start"}}>
                       {/* <ListItemText align="left" primary={bot}></ListItemText> */}
-                      <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "white", padding: "5px 15px 5px 15px"}}>{bot}</Typography>
+                      <Typography variant="solid" color="white" noWrap style={{borderRadius: "15px", backgroundColor: "white", padding: "5px 15px 5px 15px"}}>{msg.answer}</Typography>
                     </Grid>
                 </Grid>
               </ListItem>
@@ -135,14 +146,18 @@ const Chat = () => {
             open && <BasicModal open={open} setOpen={setOpen} user={user} userName={userName} Email={Email} Diagnosed={Diagnosed} fullName={user.fullName} />
           }
           <Grid container style={{ padding: "20px" }}>
-            <Grid item xs={11}>
+            <Grid item xs={11} style={{display:'flex', justifyContent:'space-between'}}>
+              {/* <SplitButton /> */}
+              <Dropdown options={options} value={0} placeholder="Select an option" />;
+
               <TextField
                 id="outlined-basic-email"
                 label="Type Something"
-                fullWidth
+                style={{width:'60%', }}
                 value={message}
                 onChange={(e) => handleChange(e)}
               />
+
             </Grid>
             <Grid item xs={1} align="right">
               <Fab color="primary" aria-label="add">
