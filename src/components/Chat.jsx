@@ -16,16 +16,17 @@ import Fab from "@material-ui/core/Fab";
 import { useUser, SignOutButton, UserProfile } from "@clerk/clerk-react";
 import SendIcon from "@material-ui/icons/Send";
 import { useState } from "react";
-import Select from 'react-select'
-
-import Dropdown from 'react-dropdown';
+import Select from "react-select";
+import Dropdown from "react-dropdown";
 import { Info } from "../context/Context";
-import 'react-dropdown/style.css';
+import "react-dropdown/style.css";
 import Modal from "@mui/material/Modal";
 import axios from "axios";
 import "../assets/Theme/styles.css";
 import profile from "../assets/Icons/profile.png";
 import bot from "../assets/Icons/bot.png";
+import { FormControl } from "@material-ui/core";
+
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
@@ -50,21 +51,25 @@ const useStyles = makeStyles({
 //   //login api call with userId
 // },[])
 const Chat = () => {
-  const options = [
-    'one', 'two', 'three'
-  ];
-  const [open, setOpen] = useState(false)
-  const navigate = useNavigate()
-  const {user,isSignedIn} = useUser()
-  const {userName, Email, Diagnosed, setUsername, setDiagnosed, setEmail} = useContext(Info)
-  console.log("user", userName, Email, Diagnosed)
-  console.log(user, isSignedIn)
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, isSignedIn } = useUser();
+  const { userName, Email, Diagnosed, setUsername, setDiagnosed, setEmail } =
+    useContext(Info);
+  console.log("user", userName, Email, Diagnosed);
+  console.log(user, isSignedIn);
   var temp = [];
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
-  const [showPrev, setShowPrev] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const optionsss = [
+    { value: "related", label: "Query about my health" },
+    { value: "general", label: "General query" },
+    { value: "summarize", label: "Summarize a report" },
+  ];
   let key = 0;
 
   if (!userName || !Email || !Diagnosed) {
@@ -79,15 +84,34 @@ const Chat = () => {
 
   const handleClick = async () => {
     //after response take last obj from the array and obj.bot = response.message
-    [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
+    // [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
     let obj = {};
     obj.question = message;
     obj.answer1 = "......";
     console.log("temp", temp);
     setMessages([...messages, obj]);
-    let obj1 = {
-      prompt: "Your are medical healthcare assistant." + message,
-    };
+
+    let obj1;
+    if (selectedOption !== null) {
+      switch (selectedOption?.value) {
+        case "related":
+          obj1 = {
+            prompt: `You are medical healthcare assistant. I am a ${Diagnosed} patient.` + message,
+          };
+          break;
+        case "general":
+          obj1 = {
+            prompt: "You are medical healthcare assistant." + message,
+          };
+          break;
+        case "summarize":
+          obj1 = {
+            prompt: "You are medical healthcare assistant." + message,
+          };
+          break;
+      }
+    }
+
     setIsLoading(true);
     setMessage("");
 
@@ -99,12 +123,11 @@ const Chat = () => {
       })
       .then((res) => {
         setIsLoading(false);
-        setShowPrev(true);
         console.log(res.data);
-        let ans = res.data[res.data.length-1].answer
-        let arr = [...messages]
-        arr[arr.length-1].answer = ans
-        setMessage(arr)
+        // let ans = res.data[res.data.length-1].answer
+        // let arr = [...messages]
+        // arr[arr.length-1].answer = ans
+        // setMessage(arr)
 
         setMessages(res.data);
       })
@@ -197,23 +220,24 @@ const Chat = () => {
                     />
                   </Grid>
 
-                  {msg?.answer && (<Grid
-                    item
-                    xs={12}
-                    style={{ display: "flex", justifyContent: "flex-start" }}
-                  >
-                    {/* <ListItemText align="left" primary={bot}></ListItemText> */}
-                    <img
-                      src={bot}
-                      style={{
-                        width: "25px",
-                        height: "25px",
-                        borderRadius: "50%",
-                        marginTop: "4px",
-                        marginLeft: "4px",
-                        marginRight: "4px"
-                      }}
-                    />
+                  {msg?.answer && (
+                    <Grid
+                      item
+                      xs={12}
+                      style={{ display: "flex", justifyContent: "flex-start" }}
+                    >
+                      {/* <ListItemText align="left" primary={bot}></ListItemText> */}
+                      <img
+                        src={bot}
+                        style={{
+                          width: "25px",
+                          height: "25px",
+                          borderRadius: "50%",
+                          marginTop: "4px",
+                          marginLeft: "4px",
+                          marginRight: "4px",
+                        }}
+                      />
                       <Typography
                         variant="solid"
                         color="white"
@@ -221,32 +245,32 @@ const Chat = () => {
                         className="bot-message"
                       >
                         {msg?.answer}
-                        
                       </Typography>
-                  </Grid>)}
+                    </Grid>
+                  )}
                 </Grid>
               </ListItem>
             ))}
             {loading && (
               <>
                 <Grid
-                    item
-                    xs={12}
-                    style={{ display: "flex", justifyContent: "flex-start" }}
-                  >
-                    {/* <ListItemText align="left" primary={bot}></ListItemText> */}
-                    <img
-                      src={bot}
-                      style={{
-                        width: "25px",
-                        height: "25px",
-                        borderRadius: "50%",
-                        marginTop: "4px",
-                        marginLeft: "15px",
-                      }}
-                    />
-                    <div className="dot-pulse" />
-                  </Grid>
+                  item
+                  xs={12}
+                  style={{ display: "flex", justifyContent: "flex-start" }}
+                >
+                  {/* <ListItemText align="left" primary={bot}></ListItemText> */}
+                  <img
+                    src={bot}
+                    style={{
+                      width: "25px",
+                      height: "25px",
+                      borderRadius: "50%",
+                      marginTop: "4px",
+                      marginLeft: "15px",
+                    }}
+                  />
+                  <div className="dot-pulse" />
+                </Grid>
               </>
             )}
           </List>
@@ -264,24 +288,41 @@ const Chat = () => {
           )}
 
           <Grid container style={{ padding: "20px" }}>
-            <Grid item xs={11} style={{display:'flex', justifyContent:'space-between'}}>
+            <Grid
+              item
+              xs={11}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+              }}
+            >
               {/* <SplitButton /> */}
-              <Select menuPlacement="top" options={options} />
-              
+              <Select
+                defaultValue={selectedOption}
+                onChange={setSelectedOption}
+                options={optionsss}
+                menuPlacement="top"
+                sx={{ width: 1 }}
+              />
 
+              {console.log("selected:", selectedOption)}
               <TextField
                 id="outlined-basic-email"
                 label="Type Something"
-                style={{width:'60%', }}
+                style={{ width: "70%" }}
                 value={message}
                 onChange={(e) => handleChange(e)}
                 onKeyDown={keyPress}
                 disabled={loading}
               />
-
             </Grid>
             <Grid item xs={1} align="right">
-              <Fab color="primary" aria-label="add">
+              <Fab
+                color="primary"
+                aria-label="add"
+                disabled={loading || selectedOption === null}
+              >
                 <SendIcon onClick={handleClick} />
               </Fab>
             </Grid>
