@@ -17,7 +17,6 @@ import { useUser, SignOutButton, UserProfile } from "@clerk/clerk-react";
 import SendIcon from "@material-ui/icons/Send";
 import { useState } from "react";
 import Select from "react-select";
-import Dropdown from "react-dropdown";
 import { Info } from "../context/Context";
 import "react-dropdown/style.css";
 import Modal from "@mui/material/Modal";
@@ -25,7 +24,6 @@ import axios from "axios";
 import "../assets/Theme/styles.css";
 import profile from "../assets/Icons/profile.png";
 import bot from "../assets/Icons/bot.png";
-import { FormControl } from "@material-ui/core";
 
 const useStyles = makeStyles({
   table: {
@@ -56,15 +54,14 @@ const Chat = () => {
   const { user, isSignedIn } = useUser();
   const { userName, Email, Diagnosed, setUsername, setDiagnosed, setEmail } =
     useContext(Info);
-  console.log("user", userName, Email, Diagnosed);
-  console.log(user, isSignedIn);
-  var temp = [];
+  // console.log("user", userName, Email, Diagnosed);
+  // console.log(user, isSignedIn);
+  
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-
   const optionsss = [
     { value: "related", label: "Query about my health" },
     { value: "general", label: "General query" },
@@ -74,8 +71,8 @@ const Chat = () => {
 
   if (!userName || !Email || !Diagnosed) {
     setDiagnosed("Cancer");
-    setEmail(user.emailAddresses[0].emailAddress);
-    setUsername(user.username);
+    setEmail(user?.emailAddresses[0]?.emailAddress);
+    setUsername(user?.username);
   }
 
   const handleChange = (e) => {
@@ -87,9 +84,8 @@ const Chat = () => {
     // [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
     let obj = {};
     obj.question = message;
-    obj.answer1 = "......";
-    console.log("temp", temp);
-    setMessages([...messages, obj]);
+    obj.answer = "";
+    setMessages([...messages,obj]);
 
     let obj1;
     if (selectedOption !== null) {
@@ -111,7 +107,6 @@ const Chat = () => {
           break;
       }
     }
-
     setIsLoading(true);
     setMessage("");
 
@@ -124,12 +119,17 @@ const Chat = () => {
       .then((res) => {
         setIsLoading(false);
         console.log(res.data);
-        // let ans = res.data[res.data.length-1].answer
-        // let arr = [...messages]
-        // arr[arr.length-1].answer = ans
-        // setMessage(arr)
-
-        setMessages(res.data);
+        let final = {}
+        let lastObj = res.data[res.data.length-1]
+        console.log('lastObj', lastObj)
+        console.log('msgObj', obj)
+        final.question = obj.question
+        final.answer = lastObj.answer
+        console.log('final', final)
+        console.log('messagesseasd', messages)
+        let msg = [...messages,final]
+        console.log('msggg', msg)
+        setMessages(msg);
       })
       .catch((err) => console.error(err));
   };
@@ -142,6 +142,10 @@ const Chat = () => {
       return;
     }
   };
+
+  // useEffect(() => {
+  //   temp = tempArr
+  // },[tempArr])
 
   return (
     <div>
@@ -167,7 +171,7 @@ const Chat = () => {
 
         {
           <img
-            src={user.hasImage ? user.imageUrl : profile}
+            src={user?.hasImage ? user.imageUrl : profile}
             style={{
               width: "50px",
               height: "50px",
