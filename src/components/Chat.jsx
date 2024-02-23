@@ -40,7 +40,7 @@ const useStyles = makeStyles({
     borderRight: "1px solid #e0e0e0",
   },
   messageArea: {
-    height: "60vh",
+    height: "59vh",
     overflowY: "auto",
   },
 });
@@ -62,6 +62,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [report, setReport] = useState(false);
   const optionsss = [
     { value: "related", label: "Query about my health" },
     { value: "general", label: "General query" },
@@ -78,6 +79,17 @@ const Chat = () => {
   const handleChange = (e) => {
     setMessage(e.target.value);
   };
+
+  useEffect(()=>{
+    if(selectedOption?.value === 'summarize')
+    {
+      setReport(true);
+    }
+    else
+    {
+      setReport(false);
+    }
+  }, [selectedOption?.value])
 
   const handleClick = async () => {
     //after response take last obj from the array and obj.bot = response.message
@@ -310,7 +322,8 @@ const Chat = () => {
                 sx={{ width: 1 }}
               />
 
-              {console.log("selected:", selectedOption)}
+              {console.log("selected:", report)}
+              {report && <Avatar/>}
               <TextField
                 id="outlined-basic-email"
                 label="Type Something"

@@ -6,7 +6,7 @@ const Signup = () => {
   const {isSignedIn} = useUser()
   if(isSignedIn){localStorage.clear()}
   return (
-    <div>
+    <div className='sign-in'>
         <SignUp/>
     </div>
   )

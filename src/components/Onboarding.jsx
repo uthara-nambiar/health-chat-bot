@@ -13,6 +13,13 @@ const Onboarding = () => {
     let [diagnosedValid, setDiagnosedValid] = useState(true)
     const {setUsername, setDiagnosed,setEmail} = useContext(Info)
     const navigate = useNavigate()
+
+    useEffect(()=>{
+        if(user?.username)
+        {
+            navigate('/home')
+        }
+    },[user?.username])
     
     const isEmailValid = () => {
         if(email.current != user.emailAddresses[0].emailAddress || email.current == null){
@@ -58,16 +65,13 @@ const Onboarding = () => {
             console.log("error")
         }
         //info obejct will be sent to backend /register
-        //after receving response from backend, user will be redirected to /home screen
-
-        
-
-        
+        //after receving response from backend, user will be redirected to /home screen  
     }
 
    
   return (
-    <>
+    <div className='main-div'>
+    <div className="onboarding-form">
     <div onSubmit={handleSubmit}>
         <h2>Onboarding</h2>
         <form style={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
@@ -80,8 +84,8 @@ const Onboarding = () => {
             <button type='submit' className="button-28" role="button">Submit</button>
         </form>
     </div>
-    </>
-    
+    </div>
+    </div>
   )
 }
 

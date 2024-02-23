@@ -93,3 +93,30 @@
     padding: 10px 20px 20px 20px;
     align-items: flex-end;
   }
+
+  .background-gradient{
+    background-image: linear-gradient(to bottom right, #2193b0 , #6dd5ed);
+  }
+
+  .onboarding-form{
+    background-color: white;
+    height: 80vh;
+    width: 45vw;
+    border-radius: 30px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+
+  .main-div{
+    display: flex;
+    flex-direction: row;
+    align-content: space-between;
+    justify-content: space-around;
+    align-items: stretch;
+  }
+
+  .sign-in{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: stretch;
+  }

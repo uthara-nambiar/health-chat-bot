@@ -147,3 +147,10 @@ button:focus-visible {
 .button-42:hover {
   box-shadow: rgba(253, 76, 0, 0.5) 0 3px 8px;
 }
+
+:root {
+  /* background-image: linear-gradient(to bottom right, #53aac0 , #e6faff); */
+  background-image: linear-gradient(to bottom right, #FF0767 , #FC514A);
+  height: 100vh;
+  /* background-color: aquamarine; */
+}
