@@ -88,3 +88,8 @@
   .css-13cymwt-control, .css-t3ipsp-control{
     width: 200px;
   }
+
+  .grid-container{
+    padding: 10px 20px 20px 20px;
+    align-items: flex-end;
+  }

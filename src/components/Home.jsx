@@ -15,7 +15,7 @@ const Home = () => {
             <SignOutButton signOutCallback={() => navigate('/sign-in')} />
           </>
         ) : (
-          <div>Page not found</div>
+          <div className='dot-pulse'></div>
         )
       }
 

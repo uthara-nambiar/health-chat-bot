@@ -31,7 +31,7 @@ const useStyles = makeStyles({
   },
   chatSection: {
     width: "100%",
-    //height: "80vh",
+    height: "450px"
   },
   headBG: {
     backgroundColor: "#e0e0e0",
@@ -40,7 +40,7 @@ const useStyles = makeStyles({
     borderRight: "1px solid #e0e0e0",
   },
   messageArea: {
-    height: "50vh",
+    height: "60vh",
     overflowY: "auto",
   },
 });
@@ -166,7 +166,7 @@ const Chat = () => {
             />
           </>
         ) : (
-          <div>Page not found</div>
+          <div className='dot-pulse'></div>
         )}
 
         {
@@ -291,7 +291,7 @@ const Chat = () => {
             />
           )}
 
-          <Grid container style={{ padding: "20px" }}>
+          <Grid className="grid-container" container>
             <Grid
               item
               xs={11}
