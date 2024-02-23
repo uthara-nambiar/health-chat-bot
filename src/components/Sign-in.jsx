@@ -7,7 +7,7 @@ const Signin = () => {
   if(isSignedIn){localStorage.clear()}
 
   return (
-    <div>
+    <div className='sign-in'>
         <SignIn/>
     </div>
   )
