@@ -24,6 +24,7 @@ import axios from "axios";
 import "../assets/Theme/styles.css";
 import profile from "../assets/Icons/profile.png";
 import bot from "../assets/Icons/bot.png";
+// import Fileupload from "./Fileupload";
 
 const useStyles = makeStyles({
   table: {
@@ -56,12 +57,13 @@ const Chat = () => {
     useContext(Info);
   // console.log("user", userName, Email, Diagnosed);
   // console.log(user, isSignedIn);
-  
+  const [selectedFile, setSelectedFile] = useState(null);
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState({value:null, label:'select one'});
+  const [reportSelected, setReportSelected] = useState(false)
   const optionsss = [
     { value: "related", label: "Query about my health" },
     { value: "general", label: "General query" },
@@ -82,6 +84,9 @@ const Chat = () => {
   const handleClick = async () => {
     //after response take last obj from the array and obj.bot = response.message
     // [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
+    // if(selectedOption.value && selectedOption.value=='summarize' ){
+    //   setMessage("Summerize and Point out any concerns in this Medical report");
+    // }
     let obj = {};
     obj.question = message;
     obj.answer = "";
@@ -100,38 +105,78 @@ const Chat = () => {
             prompt: "You are medical healthcare assistant." + message,
           };
           break;
-        case "summarize":
-          obj1 = {
-            prompt: "You are medical healthcare assistant." + message,
-          };
-          break;
+        // case "summarize":
+          
+        //   // obj1 = {
+        //   //   prompt:
+        //   //     "Your are medical healthcare assistant. Summerize and Point out any concerns in the following Medical report :"
+        //   // };
+        //   break;
       }
     }
     setIsLoading(true);
     setMessage("");
+    if (selectedOption.value && selectedOption.value == "summarize"){
+      console.log("Inside summarize")
+      const formData = {
+        patient_report: selectedFile,
+      };
 
-    await axios
-      .post("http://127.0.0.1:5000/converse", obj1, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        setIsLoading(false);
-        console.log(res.data);
-        let final = {}
-        let lastObj = res.data[res.data.length-1]
-        console.log('lastObj', lastObj)
-        console.log('msgObj', obj)
-        final.question = obj.question
-        final.answer = lastObj.answer
-        console.log('final', final)
-        console.log('messagesseasd', messages)
-        let msg = [...messages,final]
-        console.log('msggg', msg)
-        setMessages(msg);
-      })
-      .catch((err) => console.error(err));
+      console.log(formData);
+        await axios.post(
+          "http://127.0.0.1:5000/summarize_report",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          },
+          { withCredentials: false }
+        )
+        .then((res) => {
+          setIsLoading(false);
+          console.log(res.data);
+          let final = {};
+          let lastObj = res.data[res.data.length - 1];
+          console.log("lastObj", lastObj);
+          console.log("msgObj", obj);
+          final.question = obj.question;
+          final.answer = lastObj.answer;
+          console.log("final", final);
+          console.log("messagesseasd", messages);
+          let msg = [...messages, final];
+          console.log("msggg", msg);
+          setMessages(msg);
+          setSelectedFile(null)
+        })
+        .catch((err) => console.log(err))
+      
+    }
+    else{
+      await axios
+        .post("http://127.0.0.1:5000/converse", obj1, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          setIsLoading(false);
+          console.log(res.data);
+          let final = {};
+          let lastObj = res.data[res.data.length - 1];
+          console.log("lastObj", lastObj);
+          console.log("msgObj", obj);
+          final.question = obj.question;
+          final.answer = lastObj.answer;
+          console.log("final", final);
+          console.log("messagesseasd", messages);
+          let msg = [...messages, final];
+          console.log("msggg", msg);
+          setMessages(msg);
+        })
+        .catch((err) => console.error(err));
+
+    }
   };
 
   const keyPress = (e) => {
@@ -143,9 +188,15 @@ const Chat = () => {
     }
   };
 
-  // useEffect(() => {
-  //   temp = tempArr
-  // },[tempArr])
+  useEffect(() => {
+    console.log(selectedOption)
+    if(selectedOption.value == 'summarize'){
+      setReportSelected(true)
+    }
+    else{
+      setReportSelected(false);
+    }
+  },[selectedOption.value])
 
   return (
     <div>
@@ -302,6 +353,7 @@ const Chat = () => {
               }}
             >
               {/* <SplitButton /> */}
+
               <Select
                 defaultValue={selectedOption}
                 onChange={setSelectedOption}
@@ -309,12 +361,15 @@ const Chat = () => {
                 menuPlacement="top"
                 sx={{ width: 1 }}
               />
+              <div style={{width:'30%', display:'flex', justifyContent:'center'}}>
+                {reportSelected && <Fileupload selectedFile={selectedFile} setSelectedFile={setSelectedFile} setMessage={setMessage} />}
 
-              {console.log("selected:", selectedOption)}
+              </div>
+
               <TextField
                 id="outlined-basic-email"
                 label="Type Something"
-                style={{ width: "70%" }}
+                style={{ width: "60%" }}
                 value={message}
                 onChange={(e) => handleChange(e)}
                 onKeyDown={keyPress}
@@ -347,6 +402,33 @@ const Chat = () => {
 //   boxShadow: 24,
 //   p: 4,
 // };
+
+
+const Fileupload = ({selectedFile, setSelectedFile, setMessage}) => {
+  
+  console.log(selectedFile);
+  const onFileChange = (e) => {
+    setMessage("Summerize and Point out any concerns in this Medical report");
+    setSelectedFile(e.target.files[0]);
+
+  };
+
+  const onFileUpload = async () => {
+    
+  };
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <input type="file" onChange={onFileChange} />
+        {/* <button onClick={onFileUpload} style={{ width: "100px" }}>
+          Upload!
+        </button> */}
+      </div>
+    </div>
+  );
+};
+
+
 function BasicModal({
   open,
   setOpen,
