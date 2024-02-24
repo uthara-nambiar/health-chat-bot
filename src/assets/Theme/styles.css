@@ -120,3 +120,21 @@
     justify-content: space-around;
     align-items: stretch;
   }
+
+  .file-selected{
+    /* width: "30%"; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .no-file-selected{
+    display: flex;
+    justify-content: center;
+  }
+
+  .filename-text{
+    font-size: x-small;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }

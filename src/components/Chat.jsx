@@ -8,8 +8,8 @@ import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
+import IconButton from "@material-ui/core/IconButton";
+import PhotoCamera from "@material-ui/icons/PhotoCamera";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
 import Fab from "@material-ui/core/Fab";
@@ -25,6 +25,11 @@ import "../assets/Theme/styles.css";
 import profile from "../assets/Icons/profile.png";
 import bot from "../assets/Icons/bot.png";
 // import Fileupload from "./Fileupload";
+// import { LinkIcon } from "@chakra-ui/icons";
+// import { MdSettings } from 'react-icons/md'
+import { useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 
 const useStyles = makeStyles({
   table: {
@@ -32,7 +37,7 @@ const useStyles = makeStyles({
   },
   chatSection: {
     width: "100%",
-    height: "450px"
+    height: "450px",
   },
   headBG: {
     backgroundColor: "#e0e0e0",
@@ -62,8 +67,11 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState({value:null, label:'select one'});
-  const [reportSelected, setReportSelected] = useState(false)
+  const [selectedOption, setSelectedOption] = useState({
+    value: null,
+    label: "select one",
+  });
+  const [reportSelected, setReportSelected] = useState(false);
   const [report, setReport] = useState(false);
   const optionsss = [
     { value: "related", label: "Query about my health" },
@@ -82,16 +90,13 @@ const Chat = () => {
     setMessage(e.target.value);
   };
 
-  useEffect(()=>{
-    if(selectedOption?.value === 'summarize')
-    {
+  useEffect(() => {
+    if (selectedOption?.value === "summarize") {
       setReport(true);
-    }
-    else
-    {
+    } else {
       setReport(false);
     }
-  }, [selectedOption?.value])
+  }, [selectedOption?.value]);
 
   const handleClick = async () => {
     //after response take last obj from the array and obj.bot = response.message
@@ -102,14 +107,16 @@ const Chat = () => {
     let obj = {};
     obj.question = message;
     obj.answer = "";
-    setMessages([...messages,obj]);
+    setMessages([...messages, obj]);
 
     let obj1;
     if (selectedOption !== null) {
       switch (selectedOption?.value) {
         case "related":
           obj1 = {
-            prompt: `You are medical healthcare assistant. I am a ${Diagnosed} patient.` + message,
+            prompt:
+              `You are medical healthcare assistant. I am a ${Diagnosed} patient.` +
+              message,
           };
           break;
         case "general":
@@ -118,7 +125,7 @@ const Chat = () => {
           };
           break;
         // case "summarize":
-          
+
         //   // obj1 = {
         //   //   prompt:
         //   //     "Your are medical healthcare assistant. Summerize and Point out any concerns in the following Medical report :"
@@ -128,14 +135,15 @@ const Chat = () => {
     }
     setIsLoading(true);
     setMessage("");
-    if (selectedOption.value && selectedOption.value == "summarize"){
-      console.log("Inside summarize")
+    if (selectedOption.value && selectedOption.value == "summarize") {
+      console.log("Inside summarize");
       const formData = {
         patient_report: selectedFile,
       };
 
       console.log(formData);
-        await axios.post(
+      await axios
+        .post(
           "http://127.0.0.1:5000/summarize_report",
           formData,
           {
@@ -159,12 +167,10 @@ const Chat = () => {
           let msg = [...messages, final];
           console.log("msggg", msg);
           setMessages(msg);
-          setSelectedFile(null)
+          setSelectedFile(null);
         })
-        .catch((err) => console.log(err))
-      
-    }
-    else{
+        .catch((err) => console.log(err));
+    } else {
       await axios
         .post("http://127.0.0.1:5000/converse", obj1, {
           headers: {
@@ -187,7 +193,6 @@ const Chat = () => {
           setMessages(msg);
         })
         .catch((err) => console.error(err));
-
     }
   };
 
@@ -201,14 +206,13 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    console.log(selectedOption)
-    if(selectedOption.value == 'summarize'){
-      setReportSelected(true)
-    }
-    else{
+    console.log(selectedOption);
+    if (selectedOption.value == "summarize") {
+      setReportSelected(true);
+    } else {
       setReportSelected(false);
     }
-  },[selectedOption.value])
+  }, [selectedOption.value]);
 
   return (
     <div>
@@ -229,7 +233,7 @@ const Chat = () => {
             />
           </>
         ) : (
-          <div className='dot-pulse'></div>
+          <div className="dot-pulse"></div>
         )}
 
         {
@@ -361,24 +365,44 @@ const Chat = () => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "flex-end",
+                alignItems: "center",
               }}
             >
-              {/* <SplitButton /> */}
-
-              <Select
-                defaultValue={selectedOption}
-                onChange={setSelectedOption}
-                options={optionsss}
-                menuPlacement="top"
-                sx={{ width: 1 }}
-              />
-              <div style={{width:'30%', display:'flex', justifyContent:'center'}}>
-                {reportSelected && <Fileupload selectedFile={selectedFile} setSelectedFile={setSelectedFile} setMessage={setMessage} />}
-
+              <div
+                style={{
+                  width: "30%",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent:'space-evenly',
+                  
+                  // font-size: x-small;
+                  // overflow: hidden;
+                  // text-overflow: ellipsis;
+                }}
+                className={selectedFile ? "file-selected" : "no-file-selected"}
+              >
+                {
+                  reportSelected && (
+                    <div style={{ width: "50%" }}>
+                      <Fileupload
+                        selectedFile={selectedFile}
+                        setSelectedFile={setSelectedFile}
+                        setMessage={setMessage}
+                      />
+                  
+                </div>
+                  )
+                }
+                
+                <Select
+                  defaultValue={selectedOption}
+                  onChange={setSelectedOption}
+                  options={optionsss}
+                  menuPlacement="top"
+                  style={{ width: reportSelected?'50%':'100%' }}
+                />
               </div>
-              {console.log("selected:", report)}
-              {report && <Avatar/>}
+
               <TextField
                 id="outlined-basic-email"
                 label="Type Something"
@@ -416,31 +440,44 @@ const Chat = () => {
 //   p: 4,
 // };
 
+const Fileupload = ({ selectedFile, setSelectedFile, setMessage }) => {
+  const fileRef = useRef();
 
-const Fileupload = ({selectedFile, setSelectedFile, setMessage}) => {
-  
   console.log(selectedFile);
   const onFileChange = (e) => {
     setMessage("Summerize and Point out any concerns in this Medical report");
     setSelectedFile(e.target.files[0]);
-
   };
 
-  const onFileUpload = async () => {
-    
+  const onFileUpload = async () => {};
+
+  const handleFileClick = () => {
+    fileRef.current.click();
   };
+
   return (
-    <div>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <input type="file" onChange={onFileChange} />
-        {/* <button onClick={onFileUpload} style={{ width: "100px" }}>
-          Upload!
-        </button> */}
+    <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      <IconButton
+        color="primary"
+        aria-label="upload picture"
+        component="span"
+        onClick={handleFileClick}
+      >
+        <FontAwesomeIcon icon={faPaperclip} />
+        <input
+          type="file"
+          ref={fileRef}
+          accept=".pdf, .txt, .doc"
+          onChange={onFileChange}
+          style={{ display: "none" }}
+        />
+      </IconButton>
+      <div className="filename-text" title={selectedFile?.name}>
+        {selectedFile?.name}
       </div>
     </div>
   );
 };
-
 
 function BasicModal({
   open,

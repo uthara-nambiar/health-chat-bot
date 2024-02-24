@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import { SignedOut, SignedIn, SignOutButton, SignInButton, } from "@clerk/clerk-react"
+import { SignedOut, SignedIn, SignOutButton, SignInButton, SignUp, } from "@clerk/clerk-react"
 import Signin from './components/Sign-in'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -16,6 +16,7 @@ function App() {
     <>
     <BrowserRouter>
       <Routes>
+        <Route path='/' element={<SignUp/>} />
         <Route path='/sign-in' element={<Signin/>} />
         <Route path='/sign-up' element={<Signup/>} />
         <Route path='/home' element={<Chat/>} />
