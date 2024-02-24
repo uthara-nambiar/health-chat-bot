@@ -103,13 +103,13 @@ const Chat = () => {
         case "related":
           obj1 = {
             prompt:
-              `You are medical healthcare assistant. I am a ${Diagnosed} patient.` +
+              `You are medical healthcare assistant. I am a ${Diagnosed} patient. ` +
               message,
           };
           break;
         case "general":
           obj1 = {
-            prompt: "You are medical healthcare assistant." + message,
+            prompt: "You are medical healthcare assistant. " + message,
           };
           break;
       }
