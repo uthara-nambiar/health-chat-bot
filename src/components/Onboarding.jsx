@@ -3,6 +3,7 @@ import { useUser, SignOutButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { TextField } from '@mui/material';
 import { Info } from '../context/Context';
+import axios from 'axios';
 const Onboarding = () => {
     const { isSignedIn, user, isLoaded } = useUser();
     let email = useRef(null)
@@ -13,13 +14,6 @@ const Onboarding = () => {
     let [diagnosedValid, setDiagnosedValid] = useState(true)
     const {setUsername, setDiagnosed,setEmail} = useContext(Info)
     const navigate = useNavigate()
-
-    useEffect(()=>{
-        if(user?.username)
-        {
-            navigate('/home')
-        }
-    },[user?.username])
     
     const isEmailValid = () => {
         if(email.current != user.emailAddresses[0].emailAddress || email.current == null){
@@ -42,17 +36,21 @@ const Onboarding = () => {
         }
         return true
     }
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault()
         
         if(isEmailValid() && isUsernameValid() && isDiagnosedValid()){
             let info = {
-                userId:user.id,
                 email:email.current,
                 username: username.current,
-                diagnosed: diagnosed.current
+                disease: diagnosed.current
             }
-            console.log(info)
+            const res = await axios.post("http://127.0.0.1:5000/register", info, {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            console.log('res', res)
             console.log(user)
             setUsername(username.current)
             setEmail(email.current)

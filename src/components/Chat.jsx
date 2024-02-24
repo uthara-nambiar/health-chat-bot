@@ -32,7 +32,7 @@ const useStyles = makeStyles({
   },
   chatSection: {
     width: "100%",
-    height: "450px"
+    height: "450px",
   },
   headBG: {
     backgroundColor: "#e0e0e0",
@@ -62,9 +62,11 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState({value:null, label:'select one'});
-  const [reportSelected, setReportSelected] = useState(false)
-  const [report, setReport] = useState(false);
+  const [selectedOption, setSelectedOption] = useState({
+    value: null,
+    label: "select one",
+  });
+  const [reportSelected, setReportSelected] = useState(false);
   const optionsss = [
     { value: "related", label: "Query about my health" },
     { value: "general", label: "General query" },
@@ -72,44 +74,29 @@ const Chat = () => {
   ];
   let key = 0;
 
-  if (!userName || !Email || !Diagnosed) {
-    setDiagnosed("Cancer");
-    setEmail(user?.emailAddresses[0]?.emailAddress);
-    setUsername(user?.username);
-  }
+  // if (!userName || !Email || !Diagnosed) {
+  //   setEmail(user?.emailAddresses[0]?.emailAddress);
+  //   setUsername(user?.username);
+  // }
 
   const handleChange = (e) => {
     setMessage(e.target.value);
   };
 
-  useEffect(()=>{
-    if(selectedOption?.value === 'summarize')
-    {
-      setReport(true);
-    }
-    else
-    {
-      setReport(false);
-    }
-  }, [selectedOption?.value])
-
   const handleClick = async () => {
-    //after response take last obj from the array and obj.bot = response.message
-    // [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
-    // if(selectedOption.value && selectedOption.value=='summarize' ){
-    //   setMessage("Summerize and Point out any concerns in this Medical report");
-    // }
     let obj = {};
     obj.question = message;
     obj.answer = "";
-    setMessages([...messages,obj]);
+    setMessages([...messages, obj]);
 
     let obj1;
     if (selectedOption !== null) {
       switch (selectedOption?.value) {
         case "related":
           obj1 = {
-            prompt: `You are medical healthcare assistant. I am a ${Diagnosed} patient.` + message,
+            prompt:
+              `You are medical healthcare assistant. I am a ${Diagnosed} patient.` +
+              message,
           };
           break;
         case "general":
@@ -117,25 +104,19 @@ const Chat = () => {
             prompt: "You are medical healthcare assistant." + message,
           };
           break;
-        // case "summarize":
-          
-        //   // obj1 = {
-        //   //   prompt:
-        //   //     "Your are medical healthcare assistant. Summerize and Point out any concerns in the following Medical report :"
-        //   // };
-        //   break;
       }
     }
     setIsLoading(true);
     setMessage("");
-    if (selectedOption.value && selectedOption.value == "summarize"){
-      console.log("Inside summarize")
+    if (selectedOption.value && selectedOption.value == "summarize") {
+      console.log("Inside summarize");
       const formData = {
         patient_report: selectedFile,
       };
 
       console.log(formData);
-        await axios.post(
+      await axios
+        .post(
           "http://127.0.0.1:5000/summarize_report",
           formData,
           {
@@ -159,12 +140,10 @@ const Chat = () => {
           let msg = [...messages, final];
           console.log("msggg", msg);
           setMessages(msg);
-          setSelectedFile(null)
+          setSelectedFile(null);
         })
-        .catch((err) => console.log(err))
-      
-    }
-    else{
+        .catch((err) => console.log(err));
+    } else {
       await axios
         .post("http://127.0.0.1:5000/converse", obj1, {
           headers: {
@@ -187,7 +166,6 @@ const Chat = () => {
           setMessages(msg);
         })
         .catch((err) => console.error(err));
-
     }
   };
 
@@ -199,16 +177,34 @@ const Chat = () => {
       return;
     }
   };
-
   useEffect(() => {
-    console.log(selectedOption)
-    if(selectedOption.value == 'summarize'){
-      setReportSelected(true)
+    console.log(user, isSignedIn)
+    const login = async () => {
+      let api_base = "http://127.0.0.1:5000/login";
+      await axios.get(`${api_base}?username=${user?.username}`).then((res) => {
+        console.log(res);
+        let { username, Email, Disease } = res.data;
+        console.log("res", res);
+        setEmail(Email);
+        setDiagnosed(Disease);
+        setUsername(username);
+      })
+      .catch((err) => console.log(err))
+    };
+    if(! Diagnosed)
+    {
+      console.log('inside login route', user?.username, typeof user?.username )
+      login()
     }
-    else{
+  }, [isSignedIn]);
+  useEffect(() => {
+    console.log(selectedOption);
+    if (selectedOption.value == "summarize") {
+      setReportSelected(true);
+    } else {
       setReportSelected(false);
     }
-  },[selectedOption.value])
+  }, [selectedOption.value]);
 
   return (
     <div>
@@ -229,7 +225,7 @@ const Chat = () => {
             />
           </>
         ) : (
-          <div className='dot-pulse'></div>
+          <div className="dot-pulse"></div>
         )}
 
         {
@@ -373,12 +369,22 @@ const Chat = () => {
                 menuPlacement="top"
                 sx={{ width: 1 }}
               />
-              <div style={{width:'30%', display:'flex', justifyContent:'center'}}>
-                {reportSelected && <Fileupload selectedFile={selectedFile} setSelectedFile={setSelectedFile} setMessage={setMessage} />}
-
+              <div
+                style={{
+                  width: "30%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                {reportSelected && (
+                  <Fileupload
+                    selectedFile={selectedFile}
+                    setSelectedFile={setSelectedFile}
+                    setMessage={setMessage}
+                  />
+                )}
               </div>
-              {console.log("selected:", report)}
-              {report && <Avatar/>}
+
               <TextField
                 id="outlined-basic-email"
                 label="Type Something"
@@ -416,19 +422,14 @@ const Chat = () => {
 //   p: 4,
 // };
 
-
-const Fileupload = ({selectedFile, setSelectedFile, setMessage}) => {
-  
+const Fileupload = ({ selectedFile, setSelectedFile, setMessage }) => {
   console.log(selectedFile);
   const onFileChange = (e) => {
     setMessage("Summerize and Point out any concerns in this Medical report");
     setSelectedFile(e.target.files[0]);
-
   };
 
-  const onFileUpload = async () => {
-    
-  };
+  const onFileUpload = async () => {};
   return (
     <div>
       <div style={{ display: "flex", flexDirection: "column" }}>
@@ -440,7 +441,6 @@ const Fileupload = ({selectedFile, setSelectedFile, setMessage}) => {
     </div>
   );
 };
-
 
 function BasicModal({
   open,
