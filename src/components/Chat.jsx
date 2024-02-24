@@ -30,6 +30,7 @@ import bot from "../assets/Icons/bot.png";
 import { useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
+import Header from "./Header";
 
 const useStyles = makeStyles({
   table: {
@@ -37,7 +38,8 @@ const useStyles = makeStyles({
   },
   chatSection: {
     width: "100%",
-    height: "450px",
+    height: "500px",
+    borderRadius: "30px",
   },
   headBG: {
     backgroundColor: "#e0e0e0",
@@ -46,7 +48,7 @@ const useStyles = makeStyles({
     borderRight: "1px solid #e0e0e0",
   },
   messageArea: {
-    height: "59vh",
+    height: "60vh",
     overflowY: "auto",
   },
 });
@@ -67,12 +69,12 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [selectedOption, setSelectedOption] = useState({
     value: null,
-    label: "select one",
+    label: "Select one",
   });
   const [reportSelected, setReportSelected] = useState(false);
-  const [report, setReport] = useState(false);
   const optionsss = [
     { value: "related", label: "Query about my health" },
     { value: "general", label: "General query" },
@@ -80,30 +82,16 @@ const Chat = () => {
   ];
   let key = 0;
 
-  if (!userName || !Email || !Diagnosed) {
-    setDiagnosed("Cancer");
-    setEmail(user?.emailAddresses[0]?.emailAddress);
-    setUsername(user?.username);
-  }
+  // if (!userName || !Email || !Diagnosed) {
+  //   setEmail(user?.emailAddresses[0]?.emailAddress);
+  //   setUsername(user?.username);
+  // }
 
   const handleChange = (e) => {
     setMessage(e.target.value);
   };
 
-  useEffect(() => {
-    if (selectedOption?.value === "summarize") {
-      setReport(true);
-    } else {
-      setReport(false);
-    }
-  }, [selectedOption?.value]);
-
   const handleClick = async () => {
-    //after response take last obj from the array and obj.bot = response.message
-    // [{question:'hsifan', anser:'ans'},{question:'jsjd', answer:'......'}]
-    // if(selectedOption.value && selectedOption.value=='summarize' ){
-    //   setMessage("Summerize and Point out any concerns in this Medical report");
-    // }
     let obj = {};
     obj.question = message;
     obj.answer = "";
@@ -124,13 +112,6 @@ const Chat = () => {
             prompt: "You are medical healthcare assistant." + message,
           };
           break;
-        // case "summarize":
-
-        //   // obj1 = {
-        //   //   prompt:
-        //   //     "Your are medical healthcare assistant. Summerize and Point out any concerns in the following Medical report :"
-        //   // };
-        //   break;
       }
     }
     setIsLoading(true);
@@ -191,8 +172,11 @@ const Chat = () => {
           let msg = [...messages, final];
           console.log("msggg", msg);
           setMessages(msg);
+          setError(false);
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {console.error(err)
+        setError(true);
+      });
     }
   };
 
@@ -204,7 +188,27 @@ const Chat = () => {
       return;
     }
   };
-
+  useEffect(() => {
+    console.log(user, isSignedIn);
+    const login = async () => {
+      let api_base = "http://127.0.0.1:5000/login";
+      await axios
+        .get(`${api_base}?username=${user?.username}`)
+        .then((res) => {
+          console.log(res);
+          let { username, Email, Disease } = res.data;
+          console.log("res", res);
+          setEmail(Email);
+          setDiagnosed(Disease);
+          setUsername(username);
+        })
+        .catch((err) => console.log(err));
+    };
+    if (!Diagnosed) {
+      console.log("inside login route", user?.username, typeof user?.username);
+      login();
+    }
+  }, [isSignedIn]);
   useEffect(() => {
     console.log(selectedOption);
     if (selectedOption.value == "summarize") {
@@ -220,7 +224,7 @@ const Chat = () => {
         style={{
           display: "flex",
           flexDirection: "row",
-          height: "60px",
+          height: "50px",
           margin: "5px",
           justifyContent: "space-between",
         }}
@@ -240,8 +244,8 @@ const Chat = () => {
           <img
             src={user?.hasImage ? user.imageUrl : profile}
             style={{
-              width: "50px",
-              height: "50px",
+              width: "35px",
+              height: "35px",
               borderRadius: "50%",
               cursor: "pointer",
             }}
@@ -258,6 +262,10 @@ const Chat = () => {
       </Grid> */}
       <Grid container component={Paper} className={classes.chatSection}>
         <Grid item xs={12}>
+          <div className="header">
+            <Header />
+          </div>
+          <Divider />
           <List className={classes.messageArea}>
             {messages.map((msg) => (
               <ListItem key={key}>
@@ -315,7 +323,9 @@ const Chat = () => {
                         paragraph
                         className="bot-message"
                       >
+                        <span style={{whiteSpace: "pre-line"}}>
                         {msg?.answer}
+                        </span>
                       </Typography>
                     </Grid>
                   )}
@@ -340,7 +350,8 @@ const Chat = () => {
                       marginLeft: "15px",
                     }}
                   />
-                  <div className="dot-pulse" />
+                  {!error && <div className="dot-pulse" />}
+                  {error && "Hello"}
                 </Grid>
               </>
             )}
@@ -373,39 +384,36 @@ const Chat = () => {
                   width: "30%",
                   display: "flex",
                   flexDirection: "row",
-                  justifyContent:'space-evenly',
-                  
+                  justifyContent: "space-evenly",
+
                   // font-size: x-small;
                   // overflow: hidden;
                   // text-overflow: ellipsis;
                 }}
                 className={selectedFile ? "file-selected" : "no-file-selected"}
               >
-                {
-                  reportSelected && (
-                    <div style={{ width: "50%" }}>
-                      <Fileupload
-                        selectedFile={selectedFile}
-                        setSelectedFile={setSelectedFile}
-                        setMessage={setMessage}
-                      />
-                  
-                </div>
-                  )
-                }
-                
+                {reportSelected && (
+                  <div style={{ width: "50%" }}>
+                    <Fileupload
+                      selectedFile={selectedFile}
+                      setSelectedFile={setSelectedFile}
+                      setMessage={setMessage}
+                    />
+                  </div>
+                )}
+
                 <Select
                   defaultValue={selectedOption}
                   onChange={setSelectedOption}
                   options={optionsss}
                   menuPlacement="top"
-                  style={{ width: reportSelected?'50%':'100%' }}
+                  style={{ width: reportSelected ? "50%" : "100%" }}
                 />
               </div>
 
               <TextField
                 id="outlined-basic-email"
-                label="Type Something"
+                label="Type your query here..."
                 style={{ width: "60%" }}
                 value={message}
                 onChange={(e) => handleChange(e)}
@@ -417,7 +425,8 @@ const Chat = () => {
               <Fab
                 color="primary"
                 aria-label="add"
-                disabled={loading || selectedOption === null}
+                disabled={loading || selectedOption === null || (selectedOption.value=='summarize' && !selectedFile?.name)}
+                style={{height: "45px", width: "45px"}}
               >
                 <SendIcon onClick={handleClick} />
               </Fab>
@@ -445,7 +454,7 @@ const Fileupload = ({ selectedFile, setSelectedFile, setMessage }) => {
 
   console.log(selectedFile);
   const onFileChange = (e) => {
-    setMessage("Summerize and Point out any concerns in this Medical report");
+    setMessage("Summarize and Point out any concerns in this Medical report");
     setSelectedFile(e.target.files[0]);
   };
 
@@ -500,7 +509,7 @@ function BasicModal({
       >
         <Box
           style={{
-            background: "#097975",
+            background: "#535C91",
             marginTop: "6rem",
             width: "70%",
             marginLeft: "13%",
@@ -525,6 +534,8 @@ function BasicModal({
                 borderRadius: "50%",
                 marginTop: "30px",
                 marginBottom: "20px",
+                backgroundColor: "white",
+                padding: "5px"
               }}
             />
             <span style={{ fontSize: "20px", fontWeight: "bold" }}>
